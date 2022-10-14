@@ -98,3 +98,35 @@ class MappingTransformer(BaseEstimator, TransformerMixin):
   def fit_transform(self, X, y = None):
     result = self.transform(X)
     return result
+  
+class PearsonTransformer(BaseEstimator, TransformerMixin):
+  def __init__(self, threshold = 0.4):  
+    assert 0 <= threshold <= 1, f'{self.__class__.__name__} threshold must be in [0,1] but got {threshold} instead.'
+    self.threshold = threshold
+
+  def fit(self, X, y = None):
+    print(f"\nWarning: {self.__class__.__name__}.fit does nothing.\n")
+    return X
+
+  def transform(self, X):
+    assert isinstance(X, pd.core.frame.DataFrame), f'{self.__class__.__name__}.transform expected Dataframe but got {type(X)} instead.'
+
+    transformed_df = X.copy()
+    # correlation matrix - always square
+    df_corr = transformed_df.corr(method='pearson')
+    dim = df_corr.shape[0]
+    # True if abs value of corr is > threshold
+    threshBool = (abs(df_corr) >= self.threshold)
+    # get upper triangluar mask of booleans (k=1 to also drop the diagonal)
+    maskTemplate = np.arange(1*(dim**2)).reshape(dim,dim) >= 0
+    upTriMask = np.triu(maskTemplate, k=1)
+    # extract upper triangle of correlations over threshold and extract correlated columns
+    threshBoolUpTri = upTriMask & threshBool 
+    correlated_columns = [col for _, col in enumerate(threshBoolUpTri) if any(threshBoolUpTri[col]) == True] 
+    # drop those columns and return
+    new_df = transformed_df.drop(columns=correlated_columns)
+    return new_df
+
+  def fit_transform(self, X, y = None):
+    result = self.transform(X)
+    return result
