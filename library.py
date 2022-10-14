@@ -130,3 +130,67 @@ class PearsonTransformer(BaseEstimator, TransformerMixin):
   def fit_transform(self, X, y = None):
     result = self.transform(X)
     return result
+  
+class Sigma3Transformer(BaseEstimator, TransformerMixin):
+  def __init__(self, column_name, numSigma = 3):  
+    assert numSigma >=0, f'{self.__class__.__name__} sigma amount must be nonnegative but got {numSigma} instead.'
+    assert isinstance(column_name, str), f'{self.__class__.__name__} column_name must be of type str but got {type(column_name)} instead.'
+    self.numSigma = numSigma
+    self.column_name = column_name
+
+  def fit(self, X, y = None):
+    print(f"\nWarning: {self.__class__.__name__}.fit does nothing.\n")
+    return X
+
+  def transform(self, X):
+    assert isinstance(X, pd.core.frame.DataFrame), f'{self.__class__.__name__}.transform expected Dataframe but got {type(X)} instead.'
+    assert self.column_name in X.columns.to_list(), f'unknown column {self.column_name} in {x}'
+    assert all([isinstance(v, (int, float)) for v in X[self.column_name].to_list()])
+
+    X_ = X.copy()
+    sig = X_[self.column_name].std()
+    mu = X_[self.column_name].mean()
+    bounds = mu - self.numSigma * sig, mu + self.numSigma * sig
+    X_[self.column_name] = X_[self.column_name].clip(lower=bounds[0], upper=bounds[1])
+    return X_
+
+  def fit_transform(self, X, y = None):
+    result = self.transform(X)
+    return result
+  
+class TukeyTransformer(BaseEstimator, TransformerMixin):
+  def __init__(self, column_name, fence = "outer"):  
+    assert isinstance(column_name, str), f'{self.__class__.__name__} column_name must be of type str but got {type(column_name)} instead.'
+    assert isinstance(fence, str), f'{self.__class__.__name__} tukey method specifier must be of type str but got {type(fence)} instead.'
+    self.column_name = column_name
+    self.fence = fence
+
+  def fit(self, X, y = None):
+    print(f"\nWarning: {self.__class__.__name__}.fit does nothing.\n")
+    return X
+
+  def transform(self, X):
+    assert isinstance(X, pd.core.frame.DataFrame), f'{self.__class__.__name__}.transform expected Dataframe but got {type(X)} instead.'
+    assert self.column_name in X.columns.to_list(), f'unknown column {self.column_name} in {X}'
+
+    X_ = X.copy()
+    q1 = X_[self.column_name].quantile(0.25)
+    q3 = X_[self.column_name].quantile(0.75)  
+    iqr = q3-q1
+    inner_low = q1-1.5*iqr
+    inner_high = q3+1.5*iqr
+    outer_low = q1-3*iqr
+    outer_high = q3+3*iqr
+    
+    if self.fence == "inner":
+      X_[self.column_name] = X_[self.column_name].clip(inner_low, inner_high)
+    elif self.fence == "outer":
+      X_[self.column_name] = X_[self.column_name].clip(outer_low, outer_high)
+    else:
+      print("clip error")
+
+    return X_
+
+  def fit_transform(self, X, y = None):
+    result = self.transform(X)
+    return result
