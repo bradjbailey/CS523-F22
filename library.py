@@ -144,7 +144,7 @@ class Sigma3Transformer(BaseEstimator, TransformerMixin):
 
   def transform(self, X):
     assert isinstance(X, pd.core.frame.DataFrame), f'{self.__class__.__name__}.transform expected Dataframe but got {type(X)} instead.'
-    assert self.column_name in X.columns.to_list(), f'unknown column {self.column_name} in {x}'
+    assert self.column_name in X.columns.to_list(), f'unknown column {self.column_name} in {X.columns}'
     assert all([isinstance(v, (int, float)) for v in X[self.column_name].to_list()])
 
     X_ = X.copy()
@@ -171,7 +171,7 @@ class TukeyTransformer(BaseEstimator, TransformerMixin):
 
   def transform(self, X):
     assert isinstance(X, pd.core.frame.DataFrame), f'{self.__class__.__name__}.transform expected Dataframe but got {type(X)} instead.'
-    assert self.column_name in X.columns.to_list(), f'unknown column {self.column_name} in {X}'
+    assert self.column_name in X.columns.to_list(), f'unknown column {self.column_name} in {X.columns}'
 
     X_ = X.copy()
     q1 = X_[self.column_name].quantile(0.25)
