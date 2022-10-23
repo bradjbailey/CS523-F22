@@ -159,10 +159,10 @@ class Sigma3Transformer(BaseEstimator, TransformerMixin):
     return result
   
 class TukeyTransformer(BaseEstimator, TransformerMixin):
-  def __init__(self, column_name, fence = "outer"):  
-    assert isinstance(column_name, str), f'{self.__class__.__name__} column_name must be of type str but got {type(column_name)} instead.'
+  def __init__(self, target_column, fence = "outer"):  
+    assert isinstance(target_column, str), f'{self.__class__.__name__} target_column must be of type str but got {type(target_column)} instead.'
     assert isinstance(fence, str), f'{self.__class__.__name__} tukey method specifier must be of type str but got {type(fence)} instead.'
-    self.column_name = column_name
+    self.target_column = target_column
     self.fence = fence
 
   def fit(self, X, y = None):
@@ -171,11 +171,11 @@ class TukeyTransformer(BaseEstimator, TransformerMixin):
 
   def transform(self, X):
     assert isinstance(X, pd.core.frame.DataFrame), f'{self.__class__.__name__}.transform expected Dataframe but got {type(X)} instead.'
-    assert self.column_name in X.columns.to_list(), f'unknown column {self.column_name} in {X.columns}'
+    assert self.target_column in X.columns.to_list(), f'unknown column {self.target_column} in {X.columns}'
 
     X_ = X.copy()
-    q1 = X_[self.column_name].quantile(0.25)
-    q3 = X_[self.column_name].quantile(0.75)  
+    q1 = X_[self.target_column].quantile(0.25)
+    q3 = X_[self.target_column].quantile(0.75)  
     iqr = q3-q1
     inner_low = q1-1.5*iqr
     inner_high = q3+1.5*iqr
@@ -183,9 +183,9 @@ class TukeyTransformer(BaseEstimator, TransformerMixin):
     outer_high = q3+3*iqr
     
     if self.fence == "inner":
-      X_[self.column_name] = X_[self.column_name].clip(inner_low, inner_high)
+      X_[self.target_column] = X_[self.target_column].clip(inner_low, inner_high)
     elif self.fence == "outer":
-      X_[self.column_name] = X_[self.column_name].clip(outer_low, outer_high)
+      X_[self.target_column] = X_[self.target_column].clip(outer_low, outer_high)
     else:
       print("clip error")
 
