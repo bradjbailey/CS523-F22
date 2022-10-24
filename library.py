@@ -52,18 +52,20 @@ class DropColumnsTransformer(BaseEstimator, TransformerMixin):
   def transform(self, X):
     assert isinstance(X, pd.core.frame.DataFrame), f'{self.__class__.__name__}.transform expected Dataframe but got {type(X)} instead.'
 
+    X_ = X.copy()
+    
     if self.action == "keep":
-      # use sets instead of for loop
-      assert set(self.column_list) - set(X.columns.to_list()) == set(), f'{self.__class__.__name__}.transform unknown column(s) "{set(self.column_list) - set(X.columns.to_list())}" in: "{self.column_list}"'
-      # invert columns on keep
-      self.column_list = list(set(X.columns.to_list()) - set(self.column_list))
+        # use sets instead of for loop
+        assert set(self.column_list) - set(X.columns.to_list()) == set(), f'{self.__class__.__name__}.transform unknown column(s) "{set(self.column_list) - set(X.columns.to_list())}" in: "{self.column_list}"'
+        # invert columns on keep
+        self.column_list = list(set(X.columns.to_list()) - set(self.column_list))
+        X_.drop(columns = self.column_list, inplace=True, errors="ignore")
 
     if self.action == "drop":
-      if all([self.column_list in X.columns.to_list()]) == False:
-        warnings.warn(f'{self.__class__.__name__} Warning: one or more columns in column_list not present in dataframe.')
+        if all([self.column_list in X.columns.to_list()]) == False:
+            warnings.warn(f'{self.__class__.__name__} Warning: one or more columns in column_list not present in dataframe.')
+        X_.drop(columns = self.column_list, inplace=True, errors="ignore")
     
-    X_ = X.copy()
-    X_.drop(columns = self.column_list, inplace=True, errors="ignore")     
     return X_
 
   def fit_transform(self, X, y = None):
