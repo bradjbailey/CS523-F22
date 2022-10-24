@@ -13,6 +13,9 @@ from sklearn.neighbors import KNeighborsClassifier
 
 def find_random_state(features_df, labels, n=200):
   var = []  #collect test_error/train_error where error based on F1 score
+  
+  from sklearn.neighbors import KNeighborsClassifier
+  model = KNeighborsClassifier(n_neighbors=5)
 
   #2 minutes
   for i in range(1, n):
