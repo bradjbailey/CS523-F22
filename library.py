@@ -4,6 +4,8 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import Pipeline
 import warnings
 
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+
 # one hot encoding abbv: OHE
 class OHETransformer(BaseEstimator, TransformerMixin):
   def __init__(self, target_column, dummy_na=False, drop_first=False):  
@@ -34,6 +36,8 @@ class OHETransformer(BaseEstimator, TransformerMixin):
     result = self.transform(X)
     return result
   
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+
 class DropColumnsTransformer(BaseEstimator, TransformerMixin):
   def __init__(self, column_list, action='drop'):
     assert action in ['keep', 'drop'], f'{self.__class__.__name__} action {action} not in ["keep", "drop"]'
@@ -66,6 +70,8 @@ class DropColumnsTransformer(BaseEstimator, TransformerMixin):
     result = self.transform(X)
     return result
   
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+
 class MappingTransformer(BaseEstimator, TransformerMixin):
   def __init__(self, mapping_column, mapping_dict:dict):
     assert isinstance(mapping_dict, dict), f'{self.__class__.__name__} constructor expected dictionary but got {type(mapping_dict)} instead.'
@@ -99,6 +105,8 @@ class MappingTransformer(BaseEstimator, TransformerMixin):
     result = self.transform(X)
     return result
   
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+
 class PearsonTransformer(BaseEstimator, TransformerMixin):
   def __init__(self, threshold = 0.4):  
     assert 0 <= threshold <= 1, f'{self.__class__.__name__} threshold must be in [0,1] but got {threshold} instead.'
@@ -131,6 +139,8 @@ class PearsonTransformer(BaseEstimator, TransformerMixin):
     result = self.transform(X)
     return result
   
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+
 class Sigma3Transformer(BaseEstimator, TransformerMixin):
   def __init__(self, column_name, numSigma = 3):  
     assert numSigma >=0, f'{self.__class__.__name__} sigma amount must be nonnegative but got {numSigma} instead.'
@@ -157,7 +167,9 @@ class Sigma3Transformer(BaseEstimator, TransformerMixin):
   def fit_transform(self, X, y = None):
     result = self.transform(X)
     return result
-  
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+
 class TukeyTransformer(BaseEstimator, TransformerMixin):
   def __init__(self, target_column, fence = "outer"):  
     assert isinstance(target_column, str), f'{self.__class__.__name__} target_column must be of type str but got {type(target_column)} instead.'
@@ -195,6 +207,8 @@ class TukeyTransformer(BaseEstimator, TransformerMixin):
     result = self.transform(X)
     return result
 
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+
 class MinMaxTransformer(BaseEstimator, TransformerMixin):
   def __init__(self):
     pass  #takes no arguments
@@ -218,6 +232,8 @@ class MinMaxTransformer(BaseEstimator, TransformerMixin):
   def fit_transform(self, X, y = None):
     result = self.transform(X)
     return result
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
 
 class KNNTransformer(BaseEstimator, TransformerMixin):
   def __init__(self, n_neighbors=5, weights="uniform"):
