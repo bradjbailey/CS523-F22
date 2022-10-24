@@ -3,7 +3,6 @@ import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import Pipeline
 import warnings
-from sklearn.impute import KNNImputer
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -251,6 +250,7 @@ class KNNTransformer(BaseEstimator, TransformerMixin):
     assert isinstance(X, pd.core.frame.DataFrame), f'{self.__class__.__name__}.transform expected Dataframe but got {type(X)} instead.'
     
     X_ = X.copy()
+    from sklearn.impute import KNNImputer
     imputer = KNNImputer(n_neighbors=self.n_neighbors, weights=self.weights, add_indicator=False) 
     imputed_data = imputer.fit_transform(X_)
     X_ = pd.DataFrame(imputed_data, columns = X_.columns)
