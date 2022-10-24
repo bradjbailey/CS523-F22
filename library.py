@@ -38,39 +38,43 @@ class OHETransformer(BaseEstimator, TransformerMixin):
   
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
 
-# class DropColumnsTransformer(BaseEstimator, TransformerMixin):
-#   def __init__(self, column_list, action='drop'):
-#     assert action in ['keep', 'drop'], f'{self.__class__.__name__} action {action} not in ["keep", "drop"]'
-#     assert all([isinstance(col, str) for col in column_list]), "All entries in column_list must be of type str."
-#     self.column_list = column_list
-#     self.action = action
+class DropColumnsTransformer(BaseEstimator, TransformerMixin):
+  def __init__(self, column_list, action='drop'):
+    assert action in ['keep', 'drop'], f'{self.__class__.__name__} action {action} not in ["keep", "drop"]'
+    assert all([isinstance(col, str) for col in column_list]), "All entries in column_list must be of type str."
+    self.column_list = column_list
+    self.action = action
 
-#   def fit(self, X, y = None):
-#     print(f"\nWarning: {self.__class__.__name__}.fit does nothing.\n")
-#     return X
+  def fit(self, X, y = None):
+    print(f"\nWarning: {self.__class__.__name__}.fit does nothing.\n")
+    return X
 
-#   def transform(self, X):
-#     assert isinstance(X, pd.core.frame.DataFrame), f'{self.__class__.__name__}.transform expected Dataframe but got {type(X)} instead.'
+  def transform(self, X):
+    assert isinstance(X, pd.core.frame.DataFrame), f'{self.__class__.__name__}.transform expected Dataframe but got {type(X)} instead.'
 
-#     X_ = X.copy()
+    X_ = X.copy()
     
-#     if self.action == "keep":
-#         # use sets instead of for loop
-#         assert set(self.column_list) - set(X.columns.to_list()) == set(), f'{self.__class__.__name__}.transform unknown column(s) "{set(self.column_list) - set(X.columns.to_list())}" in: "{self.column_list}"'
-#         # invert columns on keep
-#         self.column_list = list(set(X.columns.to_list()) - set(self.column_list))
-#         X_.drop(columns = self.column_list, inplace=True, errors="ignore")
+    if self.action == "keep":
+        # use sets instead of for loop
+        assert set(self.column_list) - set(X.columns.to_list()) == set(), f'''{self.__class__.__name__}.transform unknown column(s) 
+        "{set(self.column_list) - set(X.columns.to_list())}" in: "{self.column_list}"'''
+        # invert columns on keep
+        colsToDrop = list(set(X_.columns.to_list()) - set(self.column_list))
 
-#     if self.action == "drop":
-#         if all([self.column_list in X.columns.to_list()]) == False:
-#             warnings.warn(f'{self.__class__.__name__} Warning: one or more columns in column_list not present in dataframe.')
-#         X_.drop(columns = self.column_list, inplace=True, errors="ignore")
+    elif self.action == "drop":
+        if all([self.column_list in X.columns.to_list()]) == False:
+            warnings.warn(f'{self.__class__.__name__} Warning: one or more columns in column_list not present in dataframe.')
+        colsToDrop = self.column_list
+
+    else:
+      print("Drop/Keep Control Flow error")
     
-#     return X_
+    X_ = X_.drop(columns = colsToDrop, inplace=False, errors="ignore")
+    return X_
 
-#   def fit_transform(self, X, y = None):
-#     result = self.transform(X)
-#     return result
+  def fit_transform(self, X, y = None):
+    result = self.transform(X)
+    return result
   
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
 
