@@ -218,3 +218,27 @@ class MinMaxTransformer(BaseEstimator, TransformerMixin):
   def fit_transform(self, X, y = None):
     result = self.transform(X)
     return result
+
+class KNNTransformer(BaseEstimator, TransformerMixin):
+  def __init__(self, n_neighbors=5, weights="uniform"):
+    assert isinstance(n_neighbors, int), f'KNNTransformer Error: n_neighbors must be of type int, got {type(n_neighbors)} instead.'
+    assert isinstance(n_neighbors, int), f'KNNTransformer Error: weights must be of type str, got {type(weights)} instead.'
+    self.n_neighbors = n_neighbors
+    self.weights = weights
+
+  def fit(self, X, y = None):
+    print(f"\nWarning: {self.__class__.__name__}.fit does nothing.\n")
+    return X
+
+  def transform(self, X):
+    assert isinstance(X, pd.core.frame.DataFrame), f'{self.__class__.__name__}.transform expected Dataframe but got {type(X)} instead.'
+    
+    X_ = X.copy()
+    imputer = KNNImputer(n_neighbors=self.n_neighbors, weights=self.weights, add_indicator=False) 
+    imputed_data = imputer.fit_transform(X_)
+    X_ = pd.DataFrame(imputed_data, columns = X_.columns)
+    return X_
+
+  def fit_transform(self, X, y = None):
+    result = self.transform(X)
+    return result
