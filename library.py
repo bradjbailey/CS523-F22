@@ -19,7 +19,7 @@ def find_random_state(features_df, labels, n=200):
 
   #2 minutes
   for i in range(1, n):
-      train_X, test_X, train_y, test_y = train_test_split(transformed_df, labels, test_size=0.2, shuffle=True,
+      train_X, test_X, train_y, test_y = train_test_split(features_df, labels, test_size=0.2, shuffle=True,
                                                       random_state=i, stratify=labels)
       model.fit(train_X, train_y)  #train model
       train_pred = model.predict(train_X)           #predict against training set
