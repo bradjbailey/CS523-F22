@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
-#                               DATASET-SPECIFIC TRANSFORMERS
+#                               DATASET-SPECIFIC TRANSFORMERS AND SETUP FUNCTIONS
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
 
 titanic_transformer = Pipeline(steps=[
@@ -22,6 +22,8 @@ titanic_transformer = Pipeline(steps=[
     ('imputer', KNNTransformer())  #from chapter 6
     ], verbose=True)
 
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+
 customer_transformer = Pipeline(steps=[
     ('id', DropColumnsTransformer(column_list=['ID'])),  #you may need to add an action if you have no default
     ('os', OHETransformer(target_column='OS')),
@@ -32,6 +34,41 @@ customer_transformer = Pipeline(steps=[
     ('minmax', MinMaxTransformer()),
     ('imputer', KNNTransformer())
     ], verbose=True)
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+
+def dataset_setup(full_table, label_column_name:str, the_transformer, rs, ts=.2):
+  features = full_table.drop(columns=label_column_name)
+  labels = full_table[label_column_name].to_list()
+
+  from sklearn.model_selection import train_test_split
+  X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=ts, shuffle=True,
+                                                    random_state=rs, stratify=labels)
+  
+  X_train_transformed = the_transformer.fit_transform(X_train)
+  X_test_transformed = the_transformer.fit_transform(X_test)
+
+  import numpy as np
+  x_trained_numpy = X_train_transformed.to_numpy()
+  x_test_numpy = X_test_transformed.to_numpy()
+  y_train_numpy = np.array(y_train)
+  y_test_numpy = np.array(y_test)
+
+  return x_trained_numpy, x_test_numpy, y_train_numpy, y_test_numpy
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+
+def titanic_setup(titanic_table, transformer=titanic_transformer, rs=40, ts=.2):
+  x_trained_numpy, x_test_numpy, y_train_numpy, y_test_numpy = dataset_setup(titanic_table, 'Survived',
+                                                                           transformer, rs=rs, ts=ts)
+  return x_trained_numpy, x_test_numpy, y_train_numpy, y_test_numpy
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+
+def customer_setup(customer_table, transformer=customer_transformer, rs=76, ts=.2):
+  x_trained_numpy, x_test_numpy, y_train_numpy, y_test_numpy = dataset_setup(customer_table, 'Rating',
+                                                                           transformer, rs=rs, ts=ts)
+  return x_trained_numpy, x_test_numpy, y_train_numpy, y_test_numpy
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
 #                               FUNCTIONS
