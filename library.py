@@ -6,6 +6,7 @@ import warnings
 from sklearn.metrics import f1_score#, balanced_accuracy_score, precision_score, recall_score
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
 #                               FUNCTIONS
@@ -359,3 +360,29 @@ def customer_setup(customer_table, transformer=customer_transformer, rs=76, ts=.
   x_trained_numpy, x_test_numpy, y_train_numpy, y_test_numpy = dataset_setup(customer_table, 'Rating',
                                                                            transformer, rs=rs, ts=ts)
   return x_trained_numpy, x_test_numpy, y_train_numpy, y_test_numpy
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+
+def threshold_results(thresh_list, actuals, predicted):
+  result_df = pd.DataFrame(columns=['threshold', 'precision', 'recall', 'f1', 'accuracy'])
+  for t in thresh_list:
+    yhat = [1 if v >=t else 0 for v in predicted]
+    #note: where TP=0, the Precision and Recall both become 0
+    precision = precision_score(actuals, yhat, zero_division=0)
+    recall = recall_score(actuals, yhat, zero_division=0)
+    f1 = f1_score(actuals, yhat)
+    accuracy = accuracy_score(actuals, yhat)
+    result_df.loc[len(result_df)] = {'threshold':t, 'precision':precision, 'recall':recall, 'f1':f1, 'accuracy':accuracy}
+
+  result_df = result_df.round(2)
+
+  #Next bit fancies up table for printing. See https://betterdatascience.com/style-pandas-dataframes/
+  #Note that fancy_df is not really a dataframe. More like a printable object.
+  headers = {
+    "selector": "th:not(.index_name)",
+    "props": "background-color: #800000; color: white; text-align: center"
+  }
+  properties = {"border": "1px solid black", "width": "65px", "text-align": "center"}
+
+  fancy_df = result_df.style.format(precision=2).set_properties(**properties).set_table_styles([headers])
+  return (result_df, fancy_df)
