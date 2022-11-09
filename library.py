@@ -35,6 +35,24 @@ def find_random_state(features_df, labels, n=200):
   return idx
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
+
+def halving_search(model, grid, x_train, y_train, factor=3, scoring='roc_auc'):
+  #your code below
+  halfCV = HalvingGridSearchCV(
+    model, 
+    grid,
+    n_jobs=-1,
+    min_resources="exhaust",
+    factor=factor,  #a typical place to start so triple samples and take top 3rd of combos on each iteration
+    cv=5, random_state=1234,
+    refit=True,  #remembers the best combo and gives us back that model already trained and ready for testing
+    scoring = scoring
+  )
+
+  grid_result = halfCV.fit(x_train, y_train)
+  return grid_result
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
 #                               CLASSES: TRANSFORMERS
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
 
