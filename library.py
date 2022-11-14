@@ -37,7 +37,7 @@ def find_random_state(features_df, labels, n=200):
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
 
 def halving_search(model, grid, x_train, y_train, factor=3, scoring='roc_auc'):
-  #your code below
+  from sklearn.model_selection import HalvingGridSearchCV
   halfCV = HalvingGridSearchCV(
     model, 
     grid,
