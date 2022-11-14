@@ -7,6 +7,7 @@ from sklearn.metrics import f1_score#, balanced_accuracy_score, precision_score,
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
+from sklearn.model_selection import HalvingGridSearchCV
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
 #                               FUNCTIONS
@@ -37,7 +38,6 @@ def find_random_state(features_df, labels, n=200):
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
 
 def halving_search(model, grid, x_train, y_train, factor=3, scoring='roc_auc'):
-  from sklearn.model_selection import HalvingGridSearchCV
   halfCV = HalvingGridSearchCV(
     model, 
     grid,
